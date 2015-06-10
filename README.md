@@ -1,14 +1,27 @@
 ## linuxmuster_net-server-epoptes_via_postsync
 
 [![Travis CI](http://img.shields.io/travis/ypid/ansible-linuxmuster_net-server-epoptes_via_postsync.svg?style=flat)](http://travis-ci.org/ypid/ansible-linuxmuster_net-server-epoptes_via_postsync)
+[![Ansible Galaxy](http://img.shields.io/badge/galaxy-ypid.linuxmuster_net–server–epoptes_via_postsync-660198.svg?style=flat)](https://galaxy.ansible.com/list#/roles/4113)
+[![Platforms](http://img.shields.io/badge/platforms-debian%20/%20ubuntu-lightgrey.svg?style=flat)](#)
 
 
 Configure epoptes on a linuxmuster.net server via postsync.
 
-This role is intended to run against a [linuxmuster.net](https://linuxmuster.net) server and configure [epoptes](http://www.epoptes.org/).
+This role is intended to run against a [linuxmuster.net](https://linuxmuster.net) server and configure [epoptes](http://www.epoptes.org/) for the clients.
 It is based on [the documentation at linuxmuster.net](http://www.linuxmuster.net/wiki/anwenderwiki:linuxclient:epoptes).
 
-For configuring the client have a look at the role [`ypid.linuxmuster_net-client-epoptes_via_postsync`]().
+For configuring the client have a look at the role [`ypid.linuxmuster_net-client-epoptes_via_postsync`](https://galaxy.ansible.com/list#/roles/4114).
+
+### Installation
+
+This role requires at least Ansible `v1.3`. To install it, run:
+
+    ansible-galaxy install ypid.linuxmuster_net-server-epoptes_via_postsync
+
+To install via git, run either:
+
+    git clone https://github.com/ypid/ansible-linuxmuster_net-server-epoptes_via_postsync.git ypid.linuxmuster_net-server-epoptes_via_postsync
+    git submodule add https://github.com/ypid/ansible-linuxmuster_net-server-epoptes_via_postsync.git roles/ypid.linuxmuster_net-server-epoptes_via_postsync
 
 
 

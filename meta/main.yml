@@ -18,12 +18,12 @@ dependencies: []
 ansigenome_info:
   github_url: "https://github.com/ypid/ansible-linuxmuster_net-server-epoptes_via_postsync"
   git_branch: "master"
-  galaxy_id: ""
+  galaxy_id: "4113"
 
   travis: True
 
   synopsis: |
-    This role is intended to run against a [linuxmuster.net](https://linuxmuster.net) server and configure [epoptes](http://www.epoptes.org/).
+    This role is intended to run against a [linuxmuster.net](https://linuxmuster.net) server and configure [epoptes](http://www.epoptes.org/) for the clients.
     It is based on [the documentation at linuxmuster.net](http://www.linuxmuster.net/wiki/anwenderwiki:linuxclient:epoptes).
 
-    For configuring the client have a look at the role [`ypid.linuxmuster_net-client-epoptes_via_postsync`]().
+    For configuring the client have a look at the role [`ypid.linuxmuster_net-client-epoptes_via_postsync`](https://galaxy.ansible.com/list#/roles/4114).
