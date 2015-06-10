@@ -1,0 +1,29 @@
+---
+
+galaxy_info:
+  author: Robin Schneider
+  description: Configure epoptes on a linuxmuster.net server via postsync.
+  license: AGPLv3
+  platforms:
+  - name: Debian
+    versions:
+      - all
+  - name: Ubuntu
+    versions:
+      - all
+  categories:
+    - system
+  min_ansible_version: 1.3
+dependencies: []
+ansigenome_info:
+  github_url: "https://github.com/ypid/ansible-linuxmuster_net-server-epoptes_via_postsync"
+  git_branch: "master"
+  galaxy_id: ""
+
+  travis: True
+
+  synopsis: |
+    This role is intended to run against a [linuxmuster.net](https://linuxmuster.net) server and configure [epoptes](http://www.epoptes.org/).
+    It is based on [the documentation at linuxmuster.net](http://www.linuxmuster.net/wiki/anwenderwiki:linuxclient:epoptes).
+
+    For configuring the client have a look at the role [`ypid.linuxmuster_net-client-epoptes_via_postsync`]().

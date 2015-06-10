@@ -1,0 +1,12 @@
+---
+
+linuxmuster_net_server_epoptes_via_postsync_image_name: linux_mint
+
+linuxmuster_net_server_epoptes_via_postsync_wol: g
+linuxmuster_net_server_epoptes_port: 789
+
+linuxmuster_net_server_epoptes_socket_group: "teacher"
+
+linuxmuster_net_server_epoptes_master_name: "Epoptes (iTALC Nachfolger)"
+
+epoptes_server_hostname: "10.16.1.254"
