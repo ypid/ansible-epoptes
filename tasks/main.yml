@@ -1,22 +1,5 @@
 ---
 
-- name: Set variable
-  set_fact:
-    linuxmuster_net_server_postsync_dir: "/var/linbo/linuxmuster-client/{{ linuxmuster_net_server_epoptes_via_postsync_image_name }}/common"
-    linuxmuster_net_server_hostmode: student
-    # linuxmuster_net_server_hostmode: teacher
-
-
-
-# - name: Copy basic postsync directory
-#   synchronize:
-#     src: "./linuxmuster-client/{{ linuxmuster_net_server_epoptes_via_postsync_image_name }}/"
-#     dest: "/var/linbo/linuxmuster-client"
-#     recursive: yes
-#     links: yes
-#     set_remote_user: no
-#   tags: ci_ignore
-
 ## Create TLS certificate and key (((
 - name: Create directory for TLS certificate and key
   file:
@@ -31,69 +14,8 @@
     creates: /etc/epoptes/server.key
 ## )))
 
+- name: Write configuration for students
+  include: write_config_for_host.yml linuxmuster_net_server_hostmode=student
 
-## Create directories in postsync (((
-- name: Create directory postsync
-  file:
-    path: "{{ linuxmuster_net_server_postsync_dir }}/{{ item }}"
-    state: directory
-    mode: 0755
-    owner: root
-    group: root
-  with_items:
-    - "etc/epoptes"
-    - "etc/default"
-    - "etc/init.d"
-    - "etc/xdg/autostart"
-    - "usr/local/share/applications"
-## )))
-
-
-## Copy TLS certificate and key (only the link) into postsync (((
-- name: Copy the certificate into postsync directory
-  command: cp "{{ item }}" "{{ linuxmuster_net_server_postsync_dir }}{{ item }}"
-  args:
-    creates: "{{ linuxmuster_net_server_postsync_dir }}{{ item }}"
-  with_items:
-    - "/etc/epoptes/server.crt"
-
-## FIXME: testing only
-# - name: Create link to key file
-  # file:
-    # src: "/tmp/key_FIXME"
-    # path: "{{ linuxmuster_net_server_postsync_dir }}{{ item }}"
-    # mode: 0644
-    # owner: root
-    # group: root
-    # state: link
-    # force: yes
-  # when: linuxmuster_net_server_hostmode == "teacher"
-  # with_items:
-    # - "/etc/epoptes/server.key"
-## )))
-
-- name: Write configuration files for epoptes
-  template:
-    src: "{{ item.file }}.j2"
-    dest: "{{ linuxmuster_net_server_postsync_dir }}/{{ item.file }}"
-    mode: "{{ item.mode | default('0640') }}"
-    owner: root
-    group: root
-  when: ((item.when is defined and linuxmuster_net_server_hostmode == item.when) or item.when is not defined)
-  with_items:
-    - file: "etc/default/epoptes"
-      when: "teacher"
-    - file: "etc/default/epoptes-client"
-      when: "student"
-    - file: "etc/xdg/autostart/epoptes-client.desktop"
-      mode: "0644"
-    # - file: "usr/share/applications/epoptes.desktop"
-    - file: "usr/local/share/applications/epoptes.desktop"
-      mode: "0644"
-      when: "teacher"
-    - file: "etc/init.d/epoptes"
-      mode: "0755"
-      when: "teacher"
-    - file: "etc/init.d/epoptes-client"
-      mode: "0755"
-      when: "student"
+- name: Write configuration for teachers
+  include: write_config_for_host.yml linuxmuster_net_server_hostmode=teacher
