@@ -1,20 +1,20 @@
 ---
 
-## Not a very nice data structure. See wanted.yml
-#
-
 linuxmuster_net_server_epoptes_room: 'r23'
-linuxmuster_net_server_epoptes_teacher: 'r23pc1'
-
-linuxmuster_net_server_epoptes_students:
-  - r23pc2:
-  - r23pc3:
+linuxmuster_net_server_epoptes_teacher: 'r23pc1.linuxmuster-net.lokal'
+## All other systems of that group will be students systems.
 
 linuxmuster_net_server_epoptes_via_postsync_image_name: linux_mint
 
 linuxmuster_net_server_epoptes_via_postsync_wol: g
 linuxmuster_net_server_epoptes_port: 789
 
-linuxmuster_net_server_epoptes_socket_group: "teacher"
+linuxmuster_net_server_epoptes_socket_group: "teachers"
+
+## Run this role against a client instead against the postsync directory on the server.
+# linuxmuster_net_server_epoptes_deploy_on_client: 'student'
+linuxmuster_net_server_epoptes_local_key_path: '/home/rsadmin/Beruf/epoptes'
+
+linuxmuster_net_server_epoptes_client_key_dir: '/dev/shm/.kk'
 
 linuxmuster_net_server_epoptes_master_name: "Epoptes (iTALC Nachfolger)"

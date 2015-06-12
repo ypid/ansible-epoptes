@@ -12,6 +12,43 @@ It is based on [the documentation at linuxmuster.net](http://www.linuxmuster.net
 
 For configuring the client have a look at the role [`ypid.linuxmuster_net-client-epoptes_via_postsync`](https://galaxy.ansible.com/list#/roles/4114).
 
+
+## Postsync directory structure
+
+    /var/linbo/linuxmuster-client/image_name
+    ├── r23_student
+    │   └── etc
+    │       ├── default
+    │       │   └── epoptes-client
+    │       ├── epoptes
+    │       │   └── server.crt
+    │       ├── init.d
+    │       │   └── epoptes-client
+    │       └── xdg
+    │           └── autostart
+    │               └── epoptes-client.desktop
+    └── r23_teacher
+        ├── etc
+        │   ├── default
+        │   │   └── epoptes
+        │   ├── epoptes
+        │   │   ├── server.crt -> /dev/shm/.kk/server.crt
+        │   │   └── server.key -> /dev/shm/.kk/server.key
+        │   ├── init.d
+        │   │   └── epoptes
+        │   ├── sudoers.d
+        │   │   └── ansible-teacher-epoptes-restart
+        │   └── xdg
+        │       └── autostart
+        │           └── copy-key.sh
+        └── usr
+            └── local
+                ├── bin
+                │   └── epoptes-copy-key.sh
+                └── share
+                    └── applications
+                        └── epoptes.desktop
+
 ### Installation
 
 This role requires at least Ansible `v1.3`. To install it, run:
@@ -32,16 +69,24 @@ List of default variables available in the inventory:
 
     ---
     
+    linuxmuster_net_server_epoptes_room: 'r23'
+    linuxmuster_net_server_epoptes_teacher: 'r23pc1.linuxmuster-net.lokal'
+    ## All other systems of that group will be students systems.
+    
     linuxmuster_net_server_epoptes_via_postsync_image_name: linux_mint
     
     linuxmuster_net_server_epoptes_via_postsync_wol: g
     linuxmuster_net_server_epoptes_port: 789
     
-    linuxmuster_net_server_epoptes_socket_group: "teacher"
+    linuxmuster_net_server_epoptes_socket_group: "teachers"
+    
+    ## Run this role against a client instead against the postsync directory on the server.
+    # linuxmuster_net_server_epoptes_deploy_on_client: 'student'
+    linuxmuster_net_server_epoptes_local_key_path: '/home/rsadmin/Beruf/epoptes'
+    
+    linuxmuster_net_server_epoptes_client_key_dir: '/dev/shm/.kk'
     
     linuxmuster_net_server_epoptes_master_name: "Epoptes (iTALC Nachfolger)"
-    
-    epoptes_server_hostname: "10.16.1.254"
 
 List of internal variables used by the role:
 

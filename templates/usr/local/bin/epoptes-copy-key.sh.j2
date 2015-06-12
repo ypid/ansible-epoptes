@@ -1,0 +1,31 @@
+#!/bin/bash
+## {{ ansible_managed }}
+#
+## @license AGPLv3 <https://www.gnu.org/licenses/agpl-3.0.html>
+## @author Copyright (C) 2015 Robin Schneider <ypid@riseup.net>
+##
+## This program is free software: you can redistribute it and/or modify
+## it under the terms of the GNU Affero General Public License as
+## published by the Free Software Foundation, version 3 of the
+## License.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU Affero General Public License for more details.
+##
+## You should have received a copy of the GNU Affero General Public License
+## along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+if groups $USER | grep &>/dev/null '\b{{ linuxmuster_net_server_epoptes_socket_group }}\b'
+then
+    (
+
+    mkdir --parent "{{ linuxmuster_net_server_epoptes_client_key_dir }}"
+    ## FIXME
+    # chown root:root "{{ linuxmuster_net_server_epoptes_client_key_dir }}"
+    cp /home/share/teachers/.italc/epoptes/server.* "{{ linuxmuster_net_server_epoptes_client_key_dir }}/"
+    sudo service epoptes restart
+
+    ) >> /tmp/.epoptes.${USER}.log
+fi

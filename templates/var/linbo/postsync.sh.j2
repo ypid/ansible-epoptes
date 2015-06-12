@@ -1,0 +1,93 @@
+echo "##### POSTSYNC BEGIN #####"
+
+# IP-Adresse des Server
+SERVERIP=10.16.1.1
+
+# Raum feststellen. Dieses Skript geht davon aus
+# dass die Rechner Namen der Form
+# raumname-hostname haben, also z.B. cr01-pc18
+RAUM=${HOSTNAME%-*}
+# wenn der string leer ist, raum auf unknown setzen
+if [ "x${RAUM}" == "x" ]; then
+    RAUM="unknown"
+fi
+
+# Das Verzeichnis, in dem die Serverpatches
+# local synchronisiert werden.
+PATCHCACHE=/linuxmuster-client
+# UVZ auf dem Server. Mit diesem Variablen kann
+# man verschiedene Images bedienen (was bei linux
+# selten nötig ist)
+PATCHCLASS="linux_mint"
+
+echo ""
+echo "Hostname:      ${HOSTNAME}"
+echo "Raum:          ${RAUM}"
+echo "Patchcache:    ${PATCHCACHE}"
+echo "Patchclass:    ${PATCHCLASS}"
+echo ""
+
+# -----------------------------------------
+# Patchdateien auf das lokale Image rsyncen
+# -----------------------------------------
+echo " - getting patchfiles"
+
+# RAUM     -> Raumname
+# HOSTNAME -> Rechnername
+# Verzeichnis anlegen, damit es sicher existiert
+mkdir -p /cache/${PATCHCACHE}
+rsync --progress --delete -r "${SERVERIP}::linbo/linuxmuster-client/${PATCHCLASS}" "/cache/${PATCHCACHE}"
+
+echo " - patching local files"
+# zuerst alles in common
+if [ -d /cache/${PATCHCACHE}/${PATCHCLASS}/common ]; then
+    cp -ar /cache/${PATCHCACHE}/${PATCHCLASS}/common/* /mnt/
+fi
+
+# dann raumspezifisch
+if [ -d /cache/${PATCHCACHE}/${PATCHCLASS}/${RAUM} ]; then
+    cp -ar /cache/${PATCHCACHE}/${PATCHCLASS}/${RAUM}/* /mnt/
+fi
+
+# dann rechnerspezifisch
+if [ -d /cache/${PATCHCACHE}/${PATCHCLASS}/${HOSTNAME} ]; then
+    cp -ar /cache/${PATCHCACHE}/${PATCHCLASS}/${HOSTNAME}/* /mnt/
+fi
+
+# -----------------------------------
+# Sonstige Aktionen
+# -----------------------------------
+
+# echo " - special postsync actions"
+
+# # hostname in /etc/hosts patchen
+# sed -i "s/HOSTNAME/$HOSTNAME/g" /mnt/etc/hosts
+# sed -i "s/#SERVERIP/$SERVERIP/g" /mnt/etc/hosts
+
+# # fstab anpassen, damit Swap-Partition stimmt
+# SWAP=$(sed ':a;N;$!ba;s/\n/;UMBRUCH;/g' $STARTCONF | sed 's/ //g'|sed 's/\[Partition\]/\n/g' | grep -i 'fstype=swap' | sed 's/;UMBRUCH;/\n/g' | grep -i 'dev=/' | cut -d'=' -f2 | head -c9)
+# echo "$SWAP"
+# sed -i "s#\#dummyswap#$SWAP#g" /mnt/etc/fstab
+
+# -----------------------------------
+# Berechtigungen anpassen, wenn nötig
+# -----------------------------------
+
+echo " - setting permissions of patched local files"
+
+# printers.conf
+# [ -f /mnt/etc/cups/printers.conf ] && chmod 600 /mnt/etc/cups/printers.conf
+
+# .ssh verzeichnis
+chmod 700 /mnt/root/.ssh/
+chmod 600 /mnt/root/.ssh/authorized_keys
+
+# Epoptes Serverkey - Rechte
+if [ -e /mnt/etc/epoptes/server.key ]
+then chmod 600 /mnt/etc/epoptes/server.key
+fi
+
+# Besitzverhältnisse für linuxadmin (hier GID 1000; ggf. anpassen) reparieren
+# chown -R 1000:1000 /mnt/home/linuxadmin
+
+echo "##### POSTSYNC END #####"

@@ -27,3 +27,40 @@ ansigenome_info:
     It is based on [the documentation at linuxmuster.net](http://www.linuxmuster.net/wiki/anwenderwiki:linuxclient:epoptes).
 
     For configuring the client have a look at the role [`ypid.linuxmuster_net-client-epoptes_via_postsync`](https://galaxy.ansible.com/list#/roles/4114).
+
+
+    ## Postsync directory structure
+
+        /var/linbo/linuxmuster-client/image_name
+        ├── r23_student
+        │   └── etc
+        │       ├── default
+        │       │   └── epoptes-client
+        │       ├── epoptes
+        │       │   └── server.crt
+        │       ├── init.d
+        │       │   └── epoptes-client
+        │       └── xdg
+        │           └── autostart
+        │               └── epoptes-client.desktop
+        └── r23_teacher
+            ├── etc
+            │   ├── default
+            │   │   └── epoptes
+            │   ├── epoptes
+            │   │   ├── server.crt -> /dev/shm/.kk/server.crt
+            │   │   └── server.key -> /dev/shm/.kk/server.key
+            │   ├── init.d
+            │   │   └── epoptes
+            │   ├── sudoers.d
+            │   │   └── ansible-teacher-epoptes-restart
+            │   └── xdg
+            │       └── autostart
+            │           └── copy-key.sh
+            └── usr
+                └── local
+                    ├── bin
+                    │   └── epoptes-copy-key.sh
+                    └── share
+                        └── applications
+                            └── epoptes.desktop

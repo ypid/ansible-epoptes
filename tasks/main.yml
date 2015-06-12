@@ -5,17 +5,40 @@
   file:
     path: /etc/epoptes
     state: directory
-    mode: 750
+    mode: 755
 
 ## Default is rsa:1024 (weak): http://www.epoptes.org/installation
 - name: Generate TLS certificate and key
   command: openssl req -batch -x509 -nodes -newkey rsa:4096 -days 1826 -keyout /etc/epoptes/server.key -out /etc/epoptes/server.crt
   args:
     creates: /etc/epoptes/server.key
+  when: linuxmuster_net_server_epoptes_deploy_on_client is not defined or not linuxmuster_net_server_epoptes_deploy_on_client
+
+- name: Enfore permissions for the key
+  file:
+    path: '/etc/epoptes/server.key'
+    mode: '0640'
+  when: linuxmuster_net_server_epoptes_deploy_on_client is not defined or not linuxmuster_net_server_epoptes_deploy_on_client
 ## )))
 
 - name: Write configuration for students
   include: write_config_for_host.yml linuxmuster_net_server_hostmode=student
+  when: (
+         (linuxmuster_net_server_epoptes_deploy_on_client is defined and linuxmuster_net_server_epoptes_deploy_on_client == 'student') or
+         linuxmuster_net_server_epoptes_deploy_on_client is not defined
+        )
 
 - name: Write configuration for teachers
   include: write_config_for_host.yml linuxmuster_net_server_hostmode=teacher
+  when: (
+         (linuxmuster_net_server_epoptes_deploy_on_client is defined and linuxmuster_net_server_epoptes_deploy_on_client == 'teacher') or
+         linuxmuster_net_server_epoptes_deploy_on_client is not defined
+        )
+
+- name: Write postsync configuration
+  template:
+    src: "var/linbo/postsync.sh.j2"
+    dest: "/var/linbo/{{ linuxmuster_net_server_epoptes_via_postsync_image_name }}.cloop._tm_postsync"
+    mode: "0755"
+    owner: root
+    group: root
