@@ -1,22 +1,33 @@
 ---
 
+- name: Set variable when deploying on client
+  set_fact:
+    linuxmuster_net_server_epoptes_base_client_root_path: ""
+  when: linuxmuster_net_server_epoptes_deploy_on_client is string
+
+- name: Set variable when deploying on server
+  set_fact:
+    ## Path to the key file source (where they are generated and kept.
+    linuxmuster_net_server_epoptes_local_key_path: "/etc/epoptes"
+  when: linuxmuster_net_server_epoptes_deploy_on_client is not defined or not linuxmuster_net_server_epoptes_deploy_on_client
+
 ## Create TLS certificate and key (((
 - name: Create directory for TLS certificate and key
   file:
-    path: /etc/epoptes
+    path: '{{ linuxmuster_net_server_epoptes_local_key_path }}'
     state: directory
-    mode: 755
+    mode: '0755'
 
 ## Default is rsa:1024 (weak): http://www.epoptes.org/installation
 - name: Generate TLS certificate and key
-  command: openssl req -batch -x509 -nodes -newkey rsa:4096 -days 1826 -keyout /etc/epoptes/server.key -out /etc/epoptes/server.crt
+  command: openssl req -batch -x509 -nodes -newkey rsa:4096 -days 1826 -keyout {{ linuxmuster_net_server_epoptes_local_key_path }}/server.key -out {{ linuxmuster_net_server_epoptes_local_key_path }}/server.crt
   args:
-    creates: /etc/epoptes/server.key
+    creates: '{{ linuxmuster_net_server_epoptes_local_key_path }}/server.key'
   when: linuxmuster_net_server_epoptes_deploy_on_client is not defined or not linuxmuster_net_server_epoptes_deploy_on_client
 
 - name: Enfore permissions for the key
   file:
-    path: '/etc/epoptes/server.key'
+    path: '{{ linuxmuster_net_server_epoptes_local_key_path }}/server.key'
     mode: '0640'
   when: linuxmuster_net_server_epoptes_deploy_on_client is not defined or not linuxmuster_net_server_epoptes_deploy_on_client
 ## )))
@@ -25,7 +36,7 @@
   include: write_config_for_host.yml linuxmuster_net_server_hostmode=student
   when: (
          (linuxmuster_net_server_epoptes_deploy_on_client is defined and linuxmuster_net_server_epoptes_deploy_on_client == 'student') or
-         linuxmuster_net_server_epoptes_deploy_on_client is not defined
+          linuxmuster_net_server_epoptes_deploy_on_client is not defined
         )
 
 - name: Write configuration for teachers
@@ -38,7 +49,8 @@
 - name: Write postsync configuration
   template:
     src: "var/linbo/postsync.sh.j2"
-    dest: "/var/linbo/{{ linuxmuster_net_server_epoptes_via_postsync_image_name }}.cloop._tm_postsync"
+    dest: "{{ linuxmuster_net_server_epoptes_postsync_script }}"
     mode: "0755"
     owner: root
     group: root
+  when: linuxmuster_net_server_epoptes_deploy_on_client is not defined or not linuxmuster_net_server_epoptes_deploy_on_client

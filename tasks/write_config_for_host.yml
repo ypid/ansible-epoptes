@@ -2,18 +2,13 @@
 
 - name: Set variable
   set_fact:
-    linuxmuster_net_server_postsync_dir: "/var/linbo/linuxmuster-client/{{ linuxmuster_net_server_epoptes_via_postsync_image_name }}/{{ linuxmuster_net_server_epoptes_room }}_{{ linuxmuster_net_server_hostmode }}"
+    linuxmuster_net_server_epoptes_base_client_root_path: "/var/linbo/linuxmuster-client/{{ linuxmuster_net_server_epoptes_via_postsync_image_name }}/{{ linuxmuster_net_server_epoptes_room }}_{{ linuxmuster_net_server_hostmode }}"
   when: linuxmuster_net_server_epoptes_deploy_on_client is not defined or not linuxmuster_net_server_epoptes_deploy_on_client
-
-- name: Set variable
-  set_fact:
-    linuxmuster_net_server_postsync_dir: ""
-  when: linuxmuster_net_server_epoptes_deploy_on_client is string
 
 ## Create directories in postsync (((
 - name: Create directory postsync
   file:
-    path: "{{ linuxmuster_net_server_postsync_dir }}/{{ item.file }}"
+    path: "{{ linuxmuster_net_server_epoptes_base_client_root_path }}/{{ item.file }}"
     state: directory
     mode: 0755
     owner: root
@@ -29,14 +24,13 @@
     - file: "etc/sudoers.d"
       when: "teacher"
     - file: "usr/local/bin"
-      when: "teacher"
 ## )))
 
-## Copy TLS certificate and key (only the link) into postsync (((
+## Handle authentication via public-private-key (((
 - name: Copy the certificate into postsync directory
-  command: cp "/{{ item }}" "{{ linuxmuster_net_server_postsync_dir }}/{{ item }}"
+  command: cp "/{{ item }}" "{{ linuxmuster_net_server_epoptes_base_client_root_path }}/{{ item }}"
   args:
-    creates: "{{ linuxmuster_net_server_postsync_dir }}/{{ item }}"
+    creates: "{{ linuxmuster_net_server_epoptes_base_client_root_path }}/{{ item }}"
   when: (
          (
           linuxmuster_net_server_epoptes_deploy_on_client is not defined or
@@ -47,13 +41,20 @@
   with_items:
     - "etc/epoptes/server.crt"
 
+- name: Copy the certificate to the student system when deploying on client
+  copy:
+    src: '{{ linuxmuster_net_server_epoptes_local_key_path }}/server.crt'
+    dest: '/etc/epoptes/server.crt'
+  when: linuxmuster_net_server_epoptes_deploy_on_client is string
+
+## Does not work via cp? Doing it manually on the teacher system in the postsync script.
 - name: Create symbolic links to the key
   file:
     src: '{{ linuxmuster_net_server_epoptes_client_key_dir }}/{{ item }}'
-    path: '{{ linuxmuster_net_server_postsync_dir}}/etc/epoptes/{{ item }}'
+    path: '{{ linuxmuster_net_server_epoptes_base_client_root_path }}/etc/epoptes/{{ item }}'
     state: link
     force: yes
-  when: linuxmuster_net_server_hostmode == 'teacher'
+  when: linuxmuster_net_server_hostmode == 'teacher' and linuxmuster_net_server_epoptes_deploy_on_client is string
   with_items:
     - 'server.key'
     - 'server.crt'
@@ -63,8 +64,9 @@
 - name: Write configuration files for epoptes
   template:
     src: "{{ item.file }}.j2"
-    dest: "{{ linuxmuster_net_server_postsync_dir }}/{{ item.file }}"
+    dest: "{{ linuxmuster_net_server_epoptes_base_client_root_path }}/{{ item.file }}"
     mode: "{{ item.mode | default('0640') }}"
+    ## It is required to allow read permissions for others so that rsync can read the files on the server.
     validate: '{{ item.validate | default(omit) }}'
     owner: root
     group: root
@@ -79,14 +81,17 @@
     - file: "etc/xdg/autostart/epoptes-client.desktop"
       mode: "0644"
       when: "student"
-    - file: "etc/xdg/autostart/copy-key.sh"
+    - file: "etc/xdg/autostart/epoptes-copy-key.desktop"
       mode: "0644"
       when: "teacher"
     - file: "usr/local/bin/epoptes-copy-key.sh"
       mode: "0755"
       when: "teacher"
+    - file: "usr/local/bin/epoptes-client-loop.sh"
+      mode: "0755"
+      when: "student"
     - file: "etc/sudoers.d/ansible-teacher-epoptes-restart"
-      mode: "0640"
+      mode: "0644"
       validate: 'visudo -cf %s'
       when: "teacher"
     # - file: "usr/share/applications/epoptes.desktop"
@@ -99,3 +104,19 @@
     - file: "etc/init.d/epoptes-client"
       mode: "0755"
       when: "student"
+
+## WIP. Does nothing useful so far.
+- name: Enforce epoptes-client running
+  template:
+    src: "{{ item.file }}.j2"
+    dest: "{{ linuxmuster_net_server_epoptes_base_client_root_path }}/{{ item.file }}"
+    mode: "{{ item.mode | default('0640') }}"
+    ## It is required to allow read permissions for others so that rsync can read the files on the server.
+    validate: '{{ item.validate | default(omit) }}'
+    owner: root
+    group: root
+  when: ((item.when is defined and linuxmuster_net_server_hostmode == item.when) or item.when is not defined) and linuxmuster_net_server_epoptes_enforce is defined and linuxmuster_net_server_epoptes_enforce
+  with_items:
+    - file: "etc/sudoers.d/ansible-wm-restart"
+      mode: "0644"
+      validate: 'visudo -cf %s'

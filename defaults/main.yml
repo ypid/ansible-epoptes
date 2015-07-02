@@ -1,8 +1,12 @@
 ---
 
 linuxmuster_net_server_epoptes_room: 'r23'
+
+linuxmuster_net_server_epoptes_room_prefix: ''
+linuxmuster_net_server_epoptes_room_suffix: '-*'
+
 linuxmuster_net_server_epoptes_teacher: 'r23pc1.linuxmuster-net.lokal'
-## All other systems of that group will be students systems.
+## All other systems of that group will be student systems.
 
 linuxmuster_net_server_epoptes_via_postsync_image_name: linux_mint
 
@@ -13,8 +17,29 @@ linuxmuster_net_server_epoptes_socket_group: "teachers"
 
 ## Run this role against a client instead against the postsync directory on the server.
 # linuxmuster_net_server_epoptes_deploy_on_client: 'student'
-linuxmuster_net_server_epoptes_local_key_path: '/home/rsadmin/Beruf/epoptes'
+#
+## Path on the Ansible controller where the public-private-keypair is stored.
+# linuxmuster_net_server_epoptes_local_key_path: '/home/user/work/epoptes'
 
-linuxmuster_net_server_epoptes_client_key_dir: '/dev/shm/.kk'
+linuxmuster_net_server_epoptes_client_key_dir: '/dev/shm/.k'
 
 linuxmuster_net_server_epoptes_master_name: "Epoptes (iTALC Nachfolger)"
+linuxmuster_net_server_epoptes_postsync_script: "/var/linbo/{{ linuxmuster_net_server_epoptes_via_postsync_image_name }}.cloop.postsync"
+
+## Testing postsync template with wanted.yml data structure.
+linuxmuster_net_server_epoptes_room_definition:
+  - room: '{{ linuxmuster_net_server_epoptes_room }}'
+    # room_prefix: "{{ linuxmuster_net_server_epoptes_room_prefix }}"
+    # room_suffix: "{{ linuxmuster_net_server_epoptes_room_suffix }}"
+    teachers:
+    - '{{ linuxmuster_net_server_epoptes_teacher }}'
+    - 'r23pc2'
+    # students:
+    # - 'r23pc4'
+    # - 'r23pc5'
+
+
+## Enforce mode aka sweet revenge mode :) Restart display server if a student tries to kill the epoptes-client.
+## WIP
+# linuxmuster_net_server_epoptes_enforce: True
+linuxmuster_net_display_manager: 'mdm'

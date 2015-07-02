@@ -6,7 +6,17 @@ SERVERIP=10.16.1.1
 # Raum feststellen. Dieses Skript geht davon aus
 # dass die Rechner Namen der Form
 # raumname-hostname haben, also z.B. cr01-pc18
-RAUM=${HOSTNAME%-*}
+RAUM="${HOSTNAME}"
+{% set global_room_prefix = '' %}
+{% set global_room_suffix = '' %}
+{% if linuxmuster_net_server_epoptes_room_prefix is string and linuxmuster_net_server_epoptes_room_prefix|length > 0 %}
+{% set global_room_prefix = linuxmuster_net_server_epoptes_room_prefix %}
+RAUM="${RAUM#{{ global_room_prefix }}}"
+{% endif %}
+{% if linuxmuster_net_server_epoptes_room_suffix is string and linuxmuster_net_server_epoptes_room_suffix|length > 0 %}
+{% set global_room_suffix = linuxmuster_net_server_epoptes_room_suffix %}
+RAUM="${RAUM%{{ global_room_suffix }}}"
+{% endif %}
 # wenn der string leer ist, raum auf unknown setzen
 if [ "x${RAUM}" == "x" ]; then
     RAUM="unknown"
@@ -18,7 +28,7 @@ PATCHCACHE=/linuxmuster-client
 # UVZ auf dem Server. Mit diesem Variablen kann
 # man verschiedene Images bedienen (was bei linux
 # selten nötig ist)
-PATCHCLASS="linux_mint"
+PATCHCLASS="{{ linuxmuster_net_server_epoptes_via_postsync_image_name }}"
 
 echo ""
 echo "Hostname:      ${HOSTNAME}"
@@ -44,8 +54,50 @@ if [ -d /cache/${PATCHCACHE}/${PATCHCLASS}/common ]; then
     cp -ar /cache/${PATCHCACHE}/${PATCHCLASS}/common/* /mnt/
 fi
 
+case "$HOSTNAME" in
+{% for room_def in linuxmuster_net_server_epoptes_room_definition %}
+    {{ room_def.room_prefix|default(global_room_prefix) }}{{ room_def.room }}{{ room_def.room_suffix|default(global_room_suffix) }})
+        case "$HOSTNAME" in
+{% for teacher in room_def.teachers %}
+            "{{ teacher }}")
+                src_path="/cache/${PATCHCACHE}/${PATCHCLASS}/{{ room_def.room }}_teacher"
+                ln -s '{{ linuxmuster_net_server_epoptes_client_key_dir }}/server.key' /mnt/etc/epoptes/server.key
+                ln -s '{{ linuxmuster_net_server_epoptes_client_key_dir }}/server.crt' /mnt/etc/epoptes/server.crt
+                ;;
+{% endfor %}
+{% if room_def.students is defined and room_def.students is iterable %}
+{% for student in room_def.students %}
+            "{{ student }}")
+                src_path="/cache/${PATCHCACHE}/${PATCHCLASS}/{{ room_def.room }}_student"
+                ;;
+{% endfor %}
+{% else %}
+            *)
+                src_path="/cache/${PATCHCACHE}/${PATCHCLASS}/{{ room_def.room }}_student"
+                ;;
+{% endif %}
+        esac
+        ;;
+{% endfor %}
+esac
+
+if [ -d "${src_path}" ]; then
+    echo "Copy over ${src_path} …"
+    cp -ar ${src_path}/* /mnt/
+
+    ## There is no verbose option …
+    # -a      Same as -dpR
+    # -d,-P   Preserve links
+    # -H,-L   Dereference all symlinks (default)
+    # -p      Preserve file attributes if possible
+    # -f      Force overwrite
+    # -i      Prompt before overwrite
+    # -R,-r   Recurse directories
+    # -l,-s   Create (sym)links
+fi
+
 # dann raumspezifisch
-if [ -d /cache/${PATCHCACHE}/${PATCHCLASS}/${RAUM} ]; then
+if [ -d "/cache/${PATCHCACHE}/${PATCHCLASS}/${RAUM}" ]; then
     cp -ar /cache/${PATCHCACHE}/${PATCHCLASS}/${RAUM}/* /mnt/
 fi
 
@@ -79,13 +131,8 @@ echo " - setting permissions of patched local files"
 # [ -f /mnt/etc/cups/printers.conf ] && chmod 600 /mnt/etc/cups/printers.conf
 
 # .ssh verzeichnis
-chmod 700 /mnt/root/.ssh/
-chmod 600 /mnt/root/.ssh/authorized_keys
-
-# Epoptes Serverkey - Rechte
-if [ -e /mnt/etc/epoptes/server.key ]
-then chmod 600 /mnt/etc/epoptes/server.key
-fi
+# chmod 700 /mnt/root/.ssh/
+# chmod 600 /mnt/root/.ssh/authorized_keys
 
 # Besitzverhältnisse für linuxadmin (hier GID 1000; ggf. anpassen) reparieren
 # chown -R 1000:1000 /mnt/home/linuxadmin

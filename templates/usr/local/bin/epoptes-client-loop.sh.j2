@@ -1,5 +1,7 @@
 #!/bin/bash
 ## {{ ansible_managed }}
+## epoptes-client seems to terminate when epoptes (master) restarts?
+## Run in in infinite loop.
 #
 ## @license AGPLv3 <https://www.gnu.org/licenses/agpl-3.0.html>
 ## @author Copyright (C) 2015 Robin Schneider <ypid@riseup.net>
@@ -17,20 +19,8 @@
 ## You should have received a copy of the GNU Affero General Public License
 ## along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-if groups $USER | grep '\b{{ linuxmuster_net_server_epoptes_socket_group }}\b' 1>/dev/null
-then
-    (
-
-    mkdir --parent "{{ linuxmuster_net_server_epoptes_client_key_dir }}"
-
-    ## Enfore permissions.
-    chmod 0750 "{{ linuxmuster_net_server_epoptes_client_key_dir }}"
-
-    ## Default for linuxmuster.net. Enfore it anyway.
-    chgrp {{ linuxmuster_net_server_epoptes_socket_group }} "{{ linuxmuster_net_server_epoptes_client_key_dir }}"
-
-    cp /home/share/teachers/.italc/epoptes/server.* "{{ linuxmuster_net_server_epoptes_client_key_dir }}/"
-    sudo service epoptes restart
-
-    ) >> /tmp/.epoptes.${USER}.log
-fi
+while true
+do
+    epoptes-client
+    sleep 5
+done
