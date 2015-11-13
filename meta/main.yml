@@ -1,75 +1,28 @@
 ---
 
-galaxy_info:
-  author: Robin Schneider
-  description: Configure epoptes on a linuxmuster.net server via postsync.
-  license: AGPLv3
-  platforms:
-  - name: Debian
-    versions:
-      - all
-  - name: Ubuntu
-    versions:
-      - all
-  categories:
-    - system
-  min_ansible_version: 1.3
 dependencies: []
-ansigenome_info:
-  github_url: "https://github.com/ypid/ansible-linuxmuster_net-server-epoptes_via_postsync"
-  git_branch: "master"
-  galaxy_id: "4113"
 
-  travis: True
+galaxy_info:
 
-  synopsis: |
-    ### Status
-    Beta.
+  author: 'Robin Schneider'
+  description: 'Configure epoptes on a linuxmuster.net server via postsync.'
+  license: 'AGPL-3.0'
+  min_ansible_version: '1.3'
 
-    It has been sucessfully used in postsync and client mode.
+  platforms:
 
-    ### Summary
+    - name: Debian
+      versions:
+        - all
 
-    This role is intended to run against a [linuxmuster.net](https://linuxmuster.net) server and configure [epoptes](http://www.epoptes.org/) for the clients.
-    It is based on [the documentation at linuxmuster.net](http://www.linuxmuster.net/wiki/anwenderwiki:linuxclient:epoptes).
+    - name: Ubuntu
+      versions:
+        - all
 
-    For configuring the client have a look at the role [`ypid.linuxmuster_net-client-epoptes_via_postsync`](https://galaxy.ansible.com/list#/roles/4114).
-
-
-    ### Postsync directory structure
-
-        /var/linbo/linuxmuster-client/image_name
-        ├── r23_student
-        │   ├── etc
-        │   │   ├── default
-        │   │   │   └── epoptes-client
-        │   │   ├── epoptes
-        │   │   │   └── server.crt
-        │   │   ├── init.d
-        │   │   │   └── epoptes-client
-        │   │   └── xdg
-        │   │       └── autostart
-        │   │           └── epoptes-client.desktop
-        │   └── usr
-        │       └── local
-        │           └── bin
-        │               └── epoptes-client-loop.sh
-        ├── r23_teacher
-        │   ├── etc
-        │   │   ├── default
-        │   │   │   └── epoptes
-        │   │   ├── epoptes
-        │   │   ├── init.d
-        │   │   │   └── epoptes
-        │   │   ├── sudoers.d
-        │   │   │   └── ansible-teacher-epoptes-restart
-        │   │   └── xdg
-        │   │       └── autostart
-        │   │           └── epoptes-copy-key.desktop
-        │   └── usr
-        │       └── local
-        │           ├── bin
-        │           │   └── epoptes-copy-key.sh
-        │           └── share
-        │               └── applications
-        │                   └── epoptes.desktop
+  galaxy_tags:
+    - linuxmuster.net
+    - school
+    - epoptes
+    - remote control
+    - client control
+    - students

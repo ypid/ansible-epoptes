@@ -1,0 +1,70 @@
+---
+
+ansigenome_info:
+  github_url: "https://github.com/ypid/ansible-linuxmuster_net-server-epoptes_via_postsync"
+  git_branch: "master"
+  galaxy_id: "4113"
+
+  travis: True
+
+  license_url: 'https://tldrlegal.com/license/gnu-affero-general-public-license-v3-(agpl-3.0)'
+
+  authors:
+    - name:  'Robin Schneider'
+      url: 'http://ypid.de/'
+      email: 'ypid@riseup.net'
+      twitter: 'ypid'
+      github: 'ypid'
+
+  synopsis: |
+    ### Status
+
+    Used in production :wink:
+
+    It has been successfully used in postsync and client mode.
+
+    ### Summary
+
+    This role is intended to run against a [linuxmuster.net](https://linuxmuster.net) server and configure [epoptes](http://www.epoptes.org/) for the clients.
+    It is based on [the documentation at linuxmuster.net](http://www.linuxmuster.net/wiki/anwenderwiki:linuxclient:epoptes).
+
+    For configuring the client have a look at the role [`ypid.linuxmuster_net-client-epoptes_via_postsync`](https://galaxy.ansible.com/detail#/role/4114).
+
+
+    ### Postsync directory structure
+
+        /var/linbo/linuxmuster-client/image_name
+        ├── r23_student
+        │   ├── etc
+        │   │   ├── default
+        │   │   │   └── epoptes-client
+        │   │   ├── epoptes
+        │   │   │   └── server.crt
+        │   │   ├── init.d
+        │   │   │   └── epoptes-client
+        │   │   └── xdg
+        │   │       └── autostart
+        │   │           └── epoptes-client.desktop
+        │   └── usr
+        │       └── local
+        │           └── bin
+        │               └── epoptes-client-loop.sh
+        ├── r23_teacher
+        │   ├── etc
+        │   │   ├── default
+        │   │   │   └── epoptes
+        │   │   ├── epoptes
+        │   │   ├── init.d
+        │   │   │   └── epoptes
+        │   │   ├── sudoers.d
+        │   │   │   └── ansible-teacher-epoptes-restart
+        │   │   └── xdg
+        │   │       └── autostart
+        │   │           └── epoptes-copy-key.desktop
+        │   └── usr
+        │       └── local
+        │           ├── bin
+        │           │   └── epoptes-copy-key.sh
+        │           └── share
+        │               └── applications
+        │                   └── epoptes.desktop
