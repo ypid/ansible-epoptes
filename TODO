@@ -1,0 +1,1 @@
+* Match hostname against `epoptes__rooms` in direct mode to fix support for direct mode.

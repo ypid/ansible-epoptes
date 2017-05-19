@@ -17,19 +17,19 @@
 ## You should have received a copy of the GNU Affero General Public License
 ## along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-if groups $USER | grep '\b{{ linuxmuster_net_server_epoptes_socket_group }}\b' 1>/dev/null
+if groups $USER | grep '\b{{ epoptes__socket_group }}\b' 1>/dev/null
 then
     (
 
-    mkdir --parent "{{ linuxmuster_net_server_epoptes_client_key_dir }}"
+    mkdir --parent "{{ epoptes__client_key_dir }}"
 
     ## Enfore permissions.
-    chmod 0750 "{{ linuxmuster_net_server_epoptes_client_key_dir }}"
+    chmod 0750 "{{ epoptes__client_key_dir }}"
 
     ## Default for linuxmuster.net. Enfore it anyway.
-    chgrp {{ linuxmuster_net_server_epoptes_socket_group }} "{{ linuxmuster_net_server_epoptes_client_key_dir }}"
+    chgrp {{ epoptes__socket_group }} "{{ epoptes__client_key_dir }}"
 
-    cp /home/share/teachers/.italc/epoptes/server.* "{{ linuxmuster_net_server_epoptes_client_key_dir }}/"
+    cp /home/share/teachers/.italc/epoptes/server.* "{{ epoptes__client_key_dir }}/"
     sudo service epoptes restart
 
     ) >> /tmp/.epoptes.${USER}.log

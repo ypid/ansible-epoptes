@@ -1,0 +1,18 @@
+---
+# vim: foldmarker=[[[,]]]:foldmethod=marker
+
+- name: Create directory for TLS certificate and key
+  file:
+    path: '{{ epoptes__secret_path }}'
+    state: 'directory'
+    mode: '0750'
+
+- name: Generate TLS certificate and key
+  command: openssl req -batch -x509 -nodes -newkey {{ (epoptes__cert_key_type + ":" + (epoptes__cert_key_size|int|string)) | quote }} -days {{ epoptes__cert_days_valid }} -keyout {{ (epoptes__secret_path + "/server.key") | quote }} -out {{ (epoptes__secret_path + "/server.crt") | quote }}
+  args:
+    creates: '{{ epoptes__secret_path + "/server.key" }}'
+
+- name: Enforce permissions for the key
+  file:
+    path: '{{ epoptes__secret_path + "/server.key" }}'
+    mode: '0640'

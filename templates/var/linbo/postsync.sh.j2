@@ -7,15 +7,11 @@ SERVERIP=10.16.1.1
 # dass die Rechner Namen der Form
 # raumname-hostname haben, also z.B. cr01-pc18
 RAUM="${HOSTNAME}"
-{% set global_room_prefix = '' %}
-{% set global_room_suffix = '' %}
-{% if linuxmuster_net_server_epoptes_room_prefix is string and linuxmuster_net_server_epoptes_room_prefix|length > 0 %}
-{% set global_room_prefix = linuxmuster_net_server_epoptes_room_prefix %}
-RAUM="${RAUM#{{ global_room_prefix }}}"
+{% if epoptes__room_prefix|d() %}
+RAUM="${RAUM#{{ epoptes__room_prefix }}}"
 {% endif %}
-{% if linuxmuster_net_server_epoptes_room_suffix is string and linuxmuster_net_server_epoptes_room_suffix|length > 0 %}
-{% set global_room_suffix = linuxmuster_net_server_epoptes_room_suffix %}
-RAUM="${RAUM%{{ global_room_suffix }}}"
+{% if epoptes__room_suffix|d() %}
+RAUM="${RAUM%{{ epoptes__room_suffix }}}"
 {% endif %}
 # wenn der string leer ist, raum auf unknown setzen
 if [ "x${RAUM}" == "x" ]; then
@@ -28,7 +24,7 @@ PATCHCACHE=/linuxmuster-client
 # UVZ auf dem Server. Mit diesem Variablen kann
 # man verschiedene Images bedienen (was bei linux
 # selten nötig ist)
-PATCHCLASS="{{ linuxmuster_net_server_epoptes_via_postsync_image_name }}"
+PATCHCLASS="{{ epoptes__postsync_image_name }}"
 
 echo ""
 echo "Hostname:      ${HOSTNAME}"
@@ -55,25 +51,25 @@ if [ -d /cache/${PATCHCACHE}/${PATCHCLASS}/common ]; then
 fi
 
 case "$HOSTNAME" in
-{% for room_def in linuxmuster_net_server_epoptes_room_definition %}
-    {{ room_def.room_prefix|default(global_room_prefix) }}{{ room_def.room }}{{ room_def.room_suffix|default(global_room_suffix) }})
+{% for room, room_def in epoptes__rooms | dictsort  %}
+    {{ room_def.room_prefix|d(epoptes__room_prefix) }}{{ room_def.hostname_prefix|d(room) }}{{ room_def.room_suffix|d(epoptes__room_suffix) }})
         case "$HOSTNAME" in
 {% for teacher in room_def.teachers %}
             "{{ teacher }}")
-                src_path="/cache/${PATCHCACHE}/${PATCHCLASS}/{{ room_def.room }}_teacher"
-                ln -s '{{ linuxmuster_net_server_epoptes_client_key_dir }}/server.key' /mnt/etc/epoptes/server.key
-                ln -s '{{ linuxmuster_net_server_epoptes_client_key_dir }}/server.crt' /mnt/etc/epoptes/server.crt
+                src_path="/cache/${PATCHCACHE}/${PATCHCLASS}/{{ room }}_teacher"
+                ln -sf '{{ epoptes__client_key_dir }}/server.key' /mnt/etc/epoptes/server.key
+                ln -sf '{{ epoptes__client_key_dir }}/server.crt' /mnt/etc/epoptes/server.crt
                 ;;
 {% endfor %}
 {% if room_def.students is defined and room_def.students is iterable %}
 {% for student in room_def.students %}
             "{{ student }}")
-                src_path="/cache/${PATCHCACHE}/${PATCHCLASS}/{{ room_def.room }}_student"
+                src_path="/cache/${PATCHCACHE}/${PATCHCLASS}/{{ room }}_student"
                 ;;
 {% endfor %}
 {% else %}
             *)
-                src_path="/cache/${PATCHCACHE}/${PATCHCLASS}/{{ room_def.room }}_student"
+                src_path="/cache/${PATCHCACHE}/${PATCHCLASS}/{{ room }}_student"
                 ;;
 {% endif %}
         esac

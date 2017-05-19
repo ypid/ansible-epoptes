@@ -1,0 +1,66 @@
+---
+# vim: foldmarker=[[[,]]]:foldmethod=marker
+
+- name: Ensure specified packages are in there desired state
+  package:
+    name: '{{ item }}'
+    state: '{{ "present" if (epoptes__deploy_state == "present") else "absent" }}'
+  with_flattened:
+    - '{{ epoptes__optional_client_packages }}'
+    - '{{ (epoptes__student_packages + epoptes__teacher_packages)
+          if ("prepare_client" in epoptes__deploy_modes) else [] }}'
+    - '{{ epoptes__student_packages if ("student" in epoptes__deploy_modes) else [] }}'
+    - '{{ epoptes__teacher_packages if ("teacher" in epoptes__deploy_modes) else [] }}'
+  when: ("postsync" not in epoptes__deploy_modes)
+  tags: [ 'role::epoptes:pkgs' ]
+
+- name: Divert original configuration under /etc
+  command: dpkg-divert --quiet --local --divert {{ (item + ".dpkg-divert") | quote }} --rename {{ item | quote }}
+  args:
+    creates: '{{ item + ".dpkg-divert" }}'
+  when: (epoptes__prepare_mode == 'divert')
+  with_items:
+    - '/etc/default/epoptes-client'
+    - '/etc/default/epoptes'
+    - '/etc/init.d/epoptes'
+
+- name: Create directory for diverts
+  file:
+    path: '/usr/local/share/dpkg-diverts'
+    state: 'directory'
+    mode: '0750'
+    owner: 'root'
+    group: 'root'
+  when: (epoptes__prepare_mode == 'divert')
+
+- name: Divert original configuration
+  command: dpkg-divert --quiet --local --divert {{ "/usr/local/share/dpkg-diverts/" + item.file + ".dpkg-divert" }} --rename {{ item.path + "/" + item.file }}
+  args:
+    creates: '/usr/local/share/dpkg-diverts/{{ item.file }}.dpkg-divert'
+  when: (epoptes__prepare_mode == 'divert')
+  with_items:
+    - path: '/etc/xdg/autostart'
+      file: 'epoptes-client.desktop'
+    - path: '/usr/share/applications'
+      file: 'epoptes.desktop'
+
+- name: Remove not needed files
+  file:
+    path: '{{ item }}'
+    state: absent
+  when: (epoptes__prepare_mode == 'remove')
+  with_items:
+    - '/etc/xdg/autostart/epoptes-client.desktop'
+    - '/usr/share/applications/epoptes.desktop'
+    - '/etc/default/epoptes-client'
+    - '/etc/default/epoptes'
+    - '/etc/init.d/epoptes'
+
+- name: Remove not needed files
+  file:
+    path: '{{ item }}'
+    state: 'absent'
+  when: ("postsync" in epoptes__deploy_modes)
+  with_items:
+    - '/etc/epoptes/server.crt'
+    - '/etc/epoptes/server.key'

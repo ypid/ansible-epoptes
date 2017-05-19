@@ -6,15 +6,15 @@
 # will try to connect to "server".
 # LTSP automatically puts "server" in /etc/hosts for thin and fat clients,
 # but you'd need to put "server" in DNS manually for standalone clients.
-SERVER={{ linuxmuster_net_server_epoptes_teacher }}
+SERVER={{ (epoptes__tpl_room.value.teacher_hosts|d(epoptes__tpl_room.value.teachers))[0] }}
 
 # The port where the server will be listening on, and where the client will try
 # to connect to. For security reasons it defaults to a system port, 789.
-PORT={{ linuxmuster_net_server_epoptes_port }}
+PORT={{ epoptes__port }}
 
 # Set Wake On LAN for devices that support it. Comment it out to disable it.
-{% if linuxmuster_net_server_epoptes_via_postsync_wol %}
-WOL={{ linuxmuster_net_server_epoptes_via_postsync_wol }}
+{% if epoptes__wol_enabled|bool %}
+WOL={{ epoptes__wol_mode | quote }}
 {% else %}
 # WOL=g
 {% endif %}

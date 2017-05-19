@@ -1,45 +1,222 @@
 ---
+# .. vim: foldmarker=[[[,]]]:foldmethod=marker
 
-linuxmuster_net_server_epoptes_room: 'r23'
+# ypid.epoptes default variables [[[
+# ==================================
 
-linuxmuster_net_server_epoptes_room_prefix: ''
-linuxmuster_net_server_epoptes_room_suffix: '-*'
-
-linuxmuster_net_server_epoptes_teacher: 'r23pc1.linuxmuster-net.lokal'
-## All other systems of that group will be student systems.
-
-linuxmuster_net_server_epoptes_via_postsync_image_name: linux_mint
-
-linuxmuster_net_server_epoptes_via_postsync_wol: g
-linuxmuster_net_server_epoptes_port: 789
-
-linuxmuster_net_server_epoptes_socket_group: "teachers"
-
-## Run this role against a client instead against the postsync directory on the server.
-# linuxmuster_net_server_epoptes_deploy_on_client: 'student'
+# .. contents:: Sections
+#    :local:
 #
-## Path on the Ansible controller where the public-private-keypair is stored.
-# linuxmuster_net_server_epoptes_local_key_path: '/home/user/work/epoptes'
-
-linuxmuster_net_server_epoptes_client_key_dir: '/dev/shm/.k'
-
-linuxmuster_net_server_epoptes_master_name: "Epoptes (iTALC Nachfolger)"
-linuxmuster_net_server_epoptes_postsync_script: "/var/linbo/{{ linuxmuster_net_server_epoptes_via_postsync_image_name }}.cloop.postsync"
-
-## Testing postsync template with wanted.yml data structure.
-linuxmuster_net_server_epoptes_room_definition:
-  - room: '{{ linuxmuster_net_server_epoptes_room }}'
-    # room_prefix: "{{ linuxmuster_net_server_epoptes_room_prefix }}"
-    # room_suffix: "{{ linuxmuster_net_server_epoptes_room_suffix }}"
-    teachers:
-    - '{{ linuxmuster_net_server_epoptes_teacher }}'
-    - 'r23pc2'
-    # students:
-    # - 'r23pc4'
-    # - 'r23pc5'
+# .. include:: includes/all.rst
 
 
-## Enforce mode aka sweet revenge mode :) Restart display server if a student tries to kill the epoptes-client.
-## WIP
-# linuxmuster_net_server_epoptes_enforce: True
-linuxmuster_net_display_manager: 'mdm'
+# Mode of operation [[[
+# ---------------------
+
+# .. envvar:: epoptes__deploy_modes [[[
+#
+# In which mode(s) should the role operate when running against a specific host.
+# Possible options:
+#
+# ``prepare_client``
+#   Prepare a client computer for later configuration deployment.
+#
+# ``teacher``
+#   Directly configure a teacher computer.
+#
+# ``student``
+#   Directly configure a student computer.
+#
+# ``postsync``
+#   Write the configuration into a directory structure and configure LINBO
+#   using it’s postsync feature to sync the appropriate configuration to
+#   clients.
+#   The role is expected to be run against a linuxmuster.net_ server in this mode.
+#
+# Please choose one or more modes.
+epoptes__deploy_modes: []
+
+                                                                   # ]]]
+# .. envvar:: epoptes__prepare_mode [[[
+#
+# How should the role handle client preparation? Possible options:
+#
+# ``divert``
+#   Default. Uses :command:`dpkg-divert` to rename the files.
+#   This operation is package management aware and thus preferred.
+#
+# ``remove``
+#   Can be used for debugging when you used :envvar:`epoptes__deploy_modes` set
+#   to ``student`` or ``teacher`` and later want a clean client again.
+#
+epoptes__prepare_mode: 'divert'
+
+                                                                   # ]]]
+# .. envvar:: epoptes__deploy_state [[[
+#
+# What is the desired state which this role should achieve? Possible options:
+#
+# ``present``
+#   Default. Ensure that Epoptes is installed and configured as requested.
+#
+# ``absent``
+#   Ensure that Epoptes is uninstalled and it's configuration is removed.
+#   This mode is not fully tested and might not remove all "traces".
+#
+epoptes__deploy_state: 'present'
+                                                                   # ]]]
+                                                                   # ]]]
+# System packages [[[
+# -------------------
+
+# .. envvar:: epoptes__student_packages [[[
+#
+# List of packages to install on student client systems.
+epoptes__student_packages:
+  - 'epoptes-client'
+
+                                                                   # ]]]
+# .. envvar:: epoptes__teacher_packages [[[
+#
+# List of packages to install on student client systems.
+epoptes__teacher_packages:
+  # Master component (server).
+  - 'epoptes'
+
+                                                                   # ]]]
+# .. envvar:: epoptes__optional_client_packages [[[
+#
+# List of optional packages to install on all client systems with Epoptes
+# enabled.
+epoptes__optional_client_packages: []
+                                                                   # ]]]
+                                                                   # ]]]
+# Epoptes X.509 certificate [[[
+# -----------------------------
+
+# Those settings only apply when the private key and X.509 certificate are
+# generated on the initial role run.
+# You can remove those files on the Ansible controller to generate new once.
+# They will be pushed to remove hosts on the next role run.
+
+# .. envvar:: epoptes__cert_key_type [[[
+#
+# Epoptes public key algorithm to use.
+# Refer to :manpage:`req(1ssl)` for details.
+epoptes__cert_key_type: 'rsa'
+
+                                                                   # ]]]
+# .. envvar:: epoptes__cert_key_size [[[
+#
+# Epoptes public key size to use.
+# This depends on the setting of :envvar:`epoptes__cert_key_type`.
+epoptes__cert_key_size: 4096
+
+                                                                   # ]]]
+# .. envvar:: epoptes__cert_days_valid [[[
+#
+# Days until the will certificate expires.
+epoptes__cert_days_valid: '{{ 366 * 10 }}'
+                                                                   # ]]]
+                                                                   # ]]]
+# linuxmuster.net postsync configuration [[[
+# ------------------------------------------
+
+# .. envvar:: epoptes__postsync_image_name [[[
+#
+# Name of the Linbo image for which to generate the postsync script for.
+epoptes__postsync_image_name: 'linux_mint'
+
+                                                                   # ]]]
+# .. envvar:: epoptes__postsync_script [[[
+#
+# File path of the postsync script.
+epoptes__postsync_script: '/var/linbo/{{ epoptes__postsync_image_name }}.cloop.postsync'
+                                                                   # ]]]
+                                                                   # ]]]
+# Epoptes configuration [[[
+# -------------------------
+
+# .. envvar:: epoptes__port [[[
+#
+# The port where the server will be listening on, and where the client will try
+# to connect to. For security reasons it defaults to well-known port which
+# requires elevated permissions to listen on.
+epoptes__port: 789
+
+                                                                   # ]]]
+# .. envvar:: epoptes__wol_enabled [[[
+#
+# Should teachers be able to start computers using Wake on LAN?
+epoptes__wol_enabled: True
+
+                                                                   # ]]]
+# .. envvar:: epoptes__wol_mode [[[
+#
+# Wake On LAN mode.
+epoptes__wol_mode: 'g'
+
+                                                                   # ]]]
+# .. envvar:: epoptes__socket_group [[[
+#
+# System group the Epoptes server will use for the communications socket.  That
+# means that any user in that group will be able to launch the Epoptes UI and
+# control the clients.
+epoptes__socket_group: 'teachers'
+
+                                                                   # ]]]
+# .. envvar:: epoptes__teacher_ui_name [[[
+#
+# Name of the Epoptes (G)UI which can be used by teachers to control computers of
+# students.
+epoptes__teacher_ui_name: 'Epoptes'
+
+                                                                   # ]]]
+# .. envvar:: epoptes__enforce [[[
+#
+# Enforce mode aka sweet revenge mode :)
+# Restart the display server if a student tries to kill the
+# :program:`epoptes-client`.
+# Work in progress and probably not needed/handled differently in Epoptes.
+epoptes__enforce: False
+
+                                                                   # ]]]
+# .. envvar:: epoptes__enforce_dm [[[
+#
+# The display server to restart in :envvar:`epoptes__enforce` mode.
+epoptes__enforce_dm: 'mdm'
+                                                                   # ]]]
+                                                                   # ]]]
+# .. envvar:: epoptes__room_prefix [[[
+#
+# Room prefix string to extract the room from the hostname.
+epoptes__room_prefix: ''
+
+                                                                   # ]]]
+# .. envvar:: epoptes__room_suffix [[[
+#
+# Room prefix string to extract the room from the hostname.
+epoptes__room_suffix: '-*'
+
+                                                                   # ]]]
+# .. envvar:: epoptes__secret_path [[[
+#
+# Path on the Ansible controller where the public-private-keypair is stored.
+epoptes__secret_path: '{{ secret + "/epoptes/by-group/all" }}'
+
+                                                                   # ]]]
+# .. envvar:: epoptes__client_key_dir [[[
+#
+# Directory where the private key will be cached in on the client when a
+# teacher logs in.
+epoptes__client_key_dir: '/dev/shm/.k'
+
+                                                                   # ]]]
+# .. envvar:: epoptes__rooms [[[
+#
+# Epoptes room definitions.
+#
+# Refer to the :ref:`documentation of all options <epoptes__ref_rooms>` for more details.
+epoptes__rooms: {}
+                                                                   # ]]]
+                                                                   # ]]]

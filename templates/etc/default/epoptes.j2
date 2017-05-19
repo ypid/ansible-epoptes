@@ -2,9 +2,9 @@
 
 # The port where the server will be listening on, and where the client will try
 # to connect to. For security reasons it defaults to a system port, 789.
-PORT={{ linuxmuster_net_server_epoptes_port }}
+PORT={{ epoptes__port }}
 
 # Epoptes server will use the following group for the communications socket.
 # That means that any user in that group will be able to launch the epoptes UI
 # and control the clients.
-SOCKET_GROUP={{ linuxmuster_net_server_epoptes_socket_group }}
+SOCKET_GROUP={{ epoptes__socket_group }}

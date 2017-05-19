@@ -1,0 +1,9 @@
+epoptes__rooms:
+  'r23':
+    teacher_hosts:
+      - 'r23-pc01.sint.example.org'
+    teachers:
+      - 'r23-pc01'
+    students:
+      - 'r23-pc02'
+      - 'r23-pc03'
