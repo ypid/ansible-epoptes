@@ -13,7 +13,7 @@
 Setup and manage Epoptes
 
 The `ypid.epoptes` role allows you to manage and configure [Epoptes].
-Epoptes is an [Free and open-source software] computer lab management and monitoring tool.
+Epoptes is a [Free and open-source software] computer lab management and monitoring tool.
 
 [Epoptes]: http://www.epoptes.org/
 [Free and open-source software]: https://en.wikipedia.org/wiki/Free_and_open-source_software

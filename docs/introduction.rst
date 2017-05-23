@@ -4,7 +4,7 @@ Introduction
 .. include:: includes/all.rst
 
 The ``ypid.epoptes`` role allows you to manage and configure Epoptes_.
-Epoptes is an `Free and open-source software`_ computer lab management and monitoring tool.
+Epoptes is a `Free and open-source software`_ computer lab management and monitoring tool.
 
 The role has originally been written to deploy Epoptes in a linuxmuster.net_ environment
 using the `Postsync feature <https://www.linuxmuster.net/wiki/anwenderwiki:linbo:postsync_scripte:start>`_
