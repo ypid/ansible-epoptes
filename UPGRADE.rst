@@ -25,5 +25,5 @@ The script is bundled with this role under
 there.
 
 Note that you will need to update your inventory manually according to the documentation.
-The ``epoptes__rooms`` variable has been changed from a list to a dictionary
+The :envvar:`epoptes__rooms` variable has been changed from a list to a dictionary
 which you might need to update manually in your inventory.
