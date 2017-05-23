@@ -5,8 +5,13 @@
   assert:
     that:
       - '(epoptes__deploy_modes | length) > 0'
+      - '{{ (("teacher" in epoptes__deploy_modes) or ("student" in epoptes__deploy_modes))|bool != ("postsync" in epoptes__deploy_modes)|bool }}'
   run_once: True
   delegate_to: 'localhost'
+  tags:
+    - 'role::epoptes:pkgs'
+    - 'role::epoptes:prepare_client'
+    - 'role::epoptes:keys'
 
 - name: Prepare client
   include: prepare_client.yml

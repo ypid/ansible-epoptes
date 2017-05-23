@@ -13,8 +13,16 @@ and `human-readable changelog <http://keepachangelog.com/en/0.3.0/>`__.
 The current role maintainer_ is ypid_.
 
 
-ypid.epoptes v0.2.0 - unreleased
---------------------------------
+`ypid.epoptes master`_ - unreleased
+--------------------------------------
+
+.. _ypid.epoptes master: https://github.com/ypid/ansible-epoptes/compare/v0.2.0...master
+
+
+`ypid.epoptes v0.2.0`_ - 2017-05-23
+-----------------------------------
+
+.. _ypid.epoptes v0.2.0: https://github.com/ypid/ansible-epoptes/compare/v0.1.0...v0.2.0
 
 Added
 ~~~~~

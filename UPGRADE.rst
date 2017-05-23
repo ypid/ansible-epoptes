@@ -23,3 +23,7 @@ This script can come in handy to update a subset of variable names:
 The script is bundled with this role under
 :file:`./docs/scripts/upgrade-from-v0.1.X-to-v0.2.X` and can be invoked from
 there.
+
+Note that you will need to update your inventory manually according to the documentation.
+The :envvar:`epoptes__rooms` variable has been changed from a list to a dictionary
+which you might need to update manually in your inventory.
