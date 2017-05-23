@@ -17,10 +17,10 @@ examples for them.
 epoptes__rooms
 --------------
 
-The :envvar:`epoptes__rooms` dictionary allow you to configure the rooms for Epoptes.
+The :envvar:`epoptes__rooms` dictionary allows you to configure the (class)rooms for Epoptes.
 The key of a given room is the room name (for example ``r23`` or ``r42``).
 
-Each item is a dictionary itself with the following documented keys:
+Each item is a dictionary itself with the following supported keys:
 
 ``room_prefix``
   Optional, string.
@@ -37,6 +37,9 @@ Each item is a dictionary itself with the following documented keys:
 ``teacher_hosts``
   Optional, list of strings.
   The teacher hostnames to which clients will connect.
+  Note that Epoptes on a student computer can only be configured to connect to one teacher computer.
+  The first host ``teachers`` or ``teacher_hosts`` will be picked and additional once are ignored.
+  This was done so that the role can provide a future proof interface.
 
 ``students``
   Required, list of strings.

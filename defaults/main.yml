@@ -34,6 +34,8 @@
 #   The role is expected to be run against a linuxmuster.net_ server in this mode.
 #
 # Please choose one or more modes.
+# Note that the sets ``{ "postsync" }`` and ``{ "teacher", "student" }`` can
+# not be used together. The role asserts for this to ensure valid configuration.
 epoptes__deploy_modes: []
 
                                                                    # ]]]
@@ -78,7 +80,7 @@ epoptes__student_packages:
                                                                    # ]]]
 # .. envvar:: epoptes__teacher_packages [[[
 #
-# List of packages to install on student client systems.
+# List of packages to install on teacher client systems.
 epoptes__teacher_packages:
   # Master component (server).
   - 'epoptes'
@@ -97,7 +99,9 @@ epoptes__optional_client_packages: []
 # Those settings only apply when the private key and X.509 certificate are
 # generated on the initial role run.
 # You can remove those files on the Ansible controller to generate new once.
-# They will be pushed to remove hosts on the next role run.
+# They will be pushed to remote hosts on the next role run.
+# Note that you will need to update/redeploy all clients which use Epoptes for
+# it to work correctly.
 
 # .. envvar:: epoptes__cert_key_type [[[
 #
@@ -115,7 +119,7 @@ epoptes__cert_key_size: 4096
                                                                    # ]]]
 # .. envvar:: epoptes__cert_days_valid [[[
 #
-# Days until the will certificate expires.
+# Days until the certificate expires.
 epoptes__cert_days_valid: '{{ 366 * 10 }}'
                                                                    # ]]]
                                                                    # ]]]
@@ -124,7 +128,7 @@ epoptes__cert_days_valid: '{{ 366 * 10 }}'
 
 # .. envvar:: epoptes__postsync_image_name [[[
 #
-# Name of the Linbo image for which to generate the postsync script for.
+# Name of the Linbo image for which to generate the postsync script.
 epoptes__postsync_image_name: 'linux_mint'
 
                                                                    # ]]]
@@ -139,8 +143,8 @@ epoptes__postsync_script: '/var/linbo/{{ epoptes__postsync_image_name }}.cloop.p
 
 # .. envvar:: epoptes__port [[[
 #
-# The port where the server will be listening on, and where the client will try
-# to connect to. For security reasons it defaults to well-known port which
+# The port where the server will be listening on and where clients will try
+# to connect to. For security reasons it defaults to a well-known port which
 # requires elevated permissions to listen on.
 epoptes__port: 789
 
@@ -165,11 +169,44 @@ epoptes__wol_mode: 'g'
 epoptes__socket_group: 'teachers'
 
                                                                    # ]]]
+# .. envvar:: epoptes__secret_path [[[
+#
+# Path on the Ansible controller where the public-private-keypair is stored.
+epoptes__secret_path: '{{ secret + "/epoptes/by-group/all" }}'
+
+                                                                   # ]]]
+# .. envvar:: epoptes__client_key_dir [[[
+#
+# Directory where the private key will be cached in on the client when a
+# teacher logs in.
+epoptes__client_key_dir: '/dev/shm/.k'
+
+                                                                   # ]]]
 # .. envvar:: epoptes__teacher_ui_name [[[
 #
 # Name of the Epoptes (G)UI which can be used by teachers to control computers of
 # students.
 epoptes__teacher_ui_name: 'Epoptes'
+
+                                                                   # ]]]
+# .. envvar:: epoptes__room_prefix [[[
+#
+# Room prefix string to extract the room from the hostname.
+epoptes__room_prefix: ''
+
+                                                                   # ]]]
+# .. envvar:: epoptes__room_suffix [[[
+#
+# Room prefix string to extract the room from the hostname.
+epoptes__room_suffix: '-*'
+
+                                                                   # ]]]
+# .. envvar:: epoptes__rooms [[[
+#
+# Epoptes room definitions.
+#
+# Refer to the :ref:`documentation of all options <epoptes__ref_rooms>` for more details.
+epoptes__rooms: {}
 
                                                                    # ]]]
 # .. envvar:: epoptes__enforce [[[
@@ -186,37 +223,5 @@ epoptes__enforce: False
 # The display server to restart in :envvar:`epoptes__enforce` mode.
 epoptes__enforce_dm: 'mdm'
                                                                    # ]]]
-                                                                   # ]]]
-# .. envvar:: epoptes__room_prefix [[[
-#
-# Room prefix string to extract the room from the hostname.
-epoptes__room_prefix: ''
-
-                                                                   # ]]]
-# .. envvar:: epoptes__room_suffix [[[
-#
-# Room prefix string to extract the room from the hostname.
-epoptes__room_suffix: '-*'
-
-                                                                   # ]]]
-# .. envvar:: epoptes__secret_path [[[
-#
-# Path on the Ansible controller where the public-private-keypair is stored.
-epoptes__secret_path: '{{ secret + "/epoptes/by-group/all" }}'
-
-                                                                   # ]]]
-# .. envvar:: epoptes__client_key_dir [[[
-#
-# Directory where the private key will be cached in on the client when a
-# teacher logs in.
-epoptes__client_key_dir: '/dev/shm/.k'
-
-                                                                   # ]]]
-# .. envvar:: epoptes__rooms [[[
-#
-# Epoptes room definitions.
-#
-# Refer to the :ref:`documentation of all options <epoptes__ref_rooms>` for more details.
-epoptes__rooms: {}
                                                                    # ]]]
                                                                    # ]]]

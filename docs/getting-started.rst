@@ -16,6 +16,10 @@ Some of the Epoptes configuration needs to be changed/managed by this role.
 In order for dpkg to not ask about changed files managed by this role during
 package updates, the role diverts those files by default.
 
+This step is done when ``prepare_client`` is present in the :envvar:`epoptes__deploy_modes` list.
+Preparation is the first stage of the role and followed by the configuration stage.
+Prepared clients are the foundation for both supported configuration modes
+described in the following sections.
 
 Direct configuration modes
 --------------------------
@@ -24,6 +28,8 @@ The role can be run directly against all teacher and student computers and
 setup Epoptes in classrooms this way.
 This mode does not require a server other than the Ansible controller for client configuration.
 
+This mode is active when one of ``teacher`` or ``student`` is present in the :envvar:`epoptes__deploy_modes` list.
+
 linuxmuster.net postsync configuration modes
 --------------------------------------------
 
@@ -31,7 +37,14 @@ The postsync mode was based on the `Epoptes integration in linuxmuster.net`_ but
 handles the access/distribution of the private key of Epoptes differently to
 mitigate exposure of this key via unauthenticated rsync access which is
 possible when following the `Epoptes integration in linuxmuster.net`_
-documentation (by skilled students, from which there are many :).
+documentation.
+A skilled adversary (never underestimate students ;-) could use this key to
+setup their own Epoptes server after also spoofing the IP address on which
+clients try to reach the server.
+This attack has been mitigated by only copying the private key to the teacher
+computer when a teacher has logged in.
+
+This mode is active when ``postsync`` is present in the :envvar:`epoptes__deploy_modes` list.
 
 The directory structure on the server will look similar to this:
 
@@ -114,7 +127,7 @@ Common inventory for both modes:
 For direct configuration mode, all client hosts would be member of the
 ``[ypid_service_epoptes]`` Ansible group so that the role is run against all
 of them directly. This could look as follows, where
-``[linuxmuster_net_client_r23]`` is an Ansible group itself:
+``[sint.example.org_clients_r23]`` is an Ansible group itself as defined in the example above:
 
 .. code:: ini
 
@@ -189,7 +202,7 @@ Here's an example playbook that uses the ``ypid.epoptes`` role:
 This playbooks is shipped with this role under :file:`./docs/playbooks/epoptes.yml`
 from which you can symlink it to your playbook directory.
 In case you use multiple roles maintained by ypid_, consider
-using `ypid-ansible-common`_.
+using `ypid-ansible-common`_ where the symlinking is done for you :-)
 
 Ansible tags
 ------------
