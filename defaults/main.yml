@@ -34,8 +34,9 @@
 #   The role is expected to be run against a linuxmuster.net_ server in this mode.
 #
 # Please choose one or more modes.
-# Note that the sets ``{ "postsync" }`` and ``{ "teacher", "student" }`` can
-# not be used together. The role asserts for this to ensure valid configuration.
+# Note that an intersection of the following sets/lists of modes is invalid
+# ``[ "postsync" ]`` and ``[ "teacher", "student" ]``.
+# The role asserts for this to ensure valid configuration.
 epoptes__deploy_modes: []
 
                                                                    # ]]]
